@@ -91,6 +91,16 @@
   color: #111827;
 }
 
+.button--danger {
+  background: #dc2626;
+  color: #fff;
+}
+
+.button--small {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 .tab-button:hover,
 .button:hover {
   filter: brightness(0.95);
@@ -209,9 +219,10 @@
 }
 
 .drawing-canvas {
+  display: block;
   width: 100%;
   background: #fff;
-  border: 2px dashed #f59e0b;
+  border: 1px solid #e5e7eb;
   border-radius: 14px;
   touch-action: none;
 }
@@ -274,8 +285,16 @@
   color: #6b7280;
 }
 
+.submission-actions {
+  margin-top: 8px;
+}
+
 .practice-grid {
   grid-template-columns: 1fr;
+}
+
+.practice-main {
+  width: 100%;
 }
 
 .image-list {
@@ -283,6 +302,14 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
   margin-top: 10px;
+}
+
+.practice-selector {
+  margin-top: 14px;
+}
+
+.image-list--bottom {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
 .image-item {
@@ -319,26 +346,54 @@
   flex-direction: column;
 }
 
-.preview-image {
+.practice-canvas-head {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.practice-canvas {
+  margin-top: 10px;
+}
+
+.practice-workspace {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+.practice-reference,
+.practice-canvas-area {
+  min-width: 0;
+}
+
+.practice-reference-image {
+  display: block;
   width: 100%;
-  height: 62vh;
+  aspect-ratio: 3 / 2;
+  height: auto;
   object-fit: cover;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
-  margin-top: 14px;
+}
+
+.practice-canvas-area .practice-canvas-head {
+  margin-top: 0;
+}
+
+.practice-canvas-area .practice-canvas {
+  margin-top: 10px;
+  aspect-ratio: 3 / 2;
+  height: auto;
 }
 
 @media (min-width: 1024px) {
   .challenge-grid {
     grid-template-columns: 360px 1fr;
-  }
-
-  .practice-grid {
-    grid-template-columns: 300px 1fr;
-  }
-
-  .image-list {
-    grid-template-columns: 1fr;
   }
 
   .image-thumb {
@@ -347,5 +402,9 @@
 
   .submission-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .practice-workspace {
+    grid-template-columns: 1fr 1fr;
   }
 }

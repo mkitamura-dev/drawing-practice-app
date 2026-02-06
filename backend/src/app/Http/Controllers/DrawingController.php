@@ -63,4 +63,17 @@ class DrawingController extends Controller
 
         return Storage::disk('local')->response($drawing->image_path);
     }
+
+    public function destroy(Drawing $drawing): JsonResponse
+    {
+        if (Storage::disk('local')->exists($drawing->image_path)) {
+            Storage::disk('local')->delete($drawing->image_path);
+        }
+
+        $drawing->delete();
+
+        return response()->json([
+            'message' => 'deleted',
+        ]);
+    }
 }

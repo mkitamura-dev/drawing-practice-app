@@ -78,6 +78,7 @@ function App() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [apiMessage, setApiMessage] = useState("");
 
   const selectedImage = useMemo(
@@ -119,7 +120,7 @@ function App() {
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.lineCap = "round";
     context.lineJoin = "round";
-  }, []);
+  }, [mode]);
 
   const fetchSubmissions = async (): Promise<void> => {
     setIsLoadingSubmissions(true);
@@ -236,6 +237,26 @@ function App() {
       setApiMessage(error instanceof Error ? error.message : "投稿に失敗しました。");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const deleteSubmission = async (id: number): Promise<void> => {
+    setDeletingId(id);
+    setApiMessage("");
+    try {
+      const response = await fetch(`/api/drawings/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("削除に失敗しました。");
+      }
+
+      setSubmissions((previous) => previous.filter((submission) => submission.id !== id));
+      setApiMessage("削除しました。");
+    } catch (error) {
+      setApiMessage(error instanceof Error ? error.message : "削除に失敗しました。");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -399,6 +420,20 @@ function App() {
                         {submission.prompt_type === "today" ? "今日のお題" : "ランダム"} / {formatTimer(submission.time_limit_seconds)}
                       </p>
                       <p className="submission-meta">{formatDate(submission.created_at)}</p>
+                      <div className="submission-actions">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const ok = window.confirm("この投稿を削除しますか？");
+                            if (!ok) return;
+                            void deleteSubmission(submission.id);
+                          }}
+                          className="button button--danger button--small"
+                          disabled={deletingId === submission.id}
+                        >
+                          {deletingId === submission.id ? "削除中..." : "削除"}
+                        </button>
+                      </div>
                     </div>
                   </article>
                 ))}
@@ -407,28 +442,49 @@ function App() {
           </section>
         ) : (
           <section className="content-grid practice-grid">
-            <aside className="panel">
-              <p className="panel-title">練習用画像</p>
-              <div className="image-list">
-                {REFERENCE_IMAGES.map((image) => (
-                  <button
-                    key={image.id}
-                    type="button"
-                    onClick={() => setSelectedImageId(image.id)}
-                    className={`image-item ${selectedImageId === image.id ? "image-item--active" : ""}`}
-                  >
-                    <img src={image.url} alt={image.title} className="image-thumb" />
-                    <p className="image-caption">{image.title}</p>
-                  </button>
-                ))}
-              </div>
-            </aside>
-
-            <article className="panel preview-panel">
+            <article className="panel preview-panel practice-main">
               <p className="panel-label">表示中の画像</p>
               <h2 className="panel-heading">{selectedImage.title}</h2>
-              <p className="panel-description">画像を見ながら、形・比率・明暗を意識してスケッチしてください。</p>
-              <img src={selectedImage.url} alt={selectedImage.title} className="preview-image" />
+              <p className="panel-description">下のサムネイルで画像を切り替え、キャンバスで練習してください。</p>
+              <div className="practice-workspace">
+                <div className="practice-reference">
+                  <img src={selectedImage.url} alt={selectedImage.title} className="practice-reference-image" />
+                </div>
+                <div className="practice-canvas-area">
+                  <div className="practice-canvas-head">
+                    <p className="panel-title">練習用キャンバス</p>
+                    <button type="button" onClick={clearCanvas} className="button button--ghost">
+                      キャンバスを消す
+                    </button>
+                  </div>
+                  <canvas
+                    ref={canvasRef}
+                    width={1200}
+                    height={800}
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerLeave={handlePointerUp}
+                    className="drawing-canvas practice-canvas"
+                  />
+                </div>
+              </div>
+              <div className="practice-selector">
+                <p className="panel-title">練習用画像を選択</p>
+                <div className="image-list image-list--bottom">
+                  {REFERENCE_IMAGES.map((image) => (
+                    <button
+                      key={image.id}
+                      type="button"
+                      onClick={() => setSelectedImageId(image.id)}
+                      className={`image-item ${selectedImageId === image.id ? "image-item--active" : ""}`}
+                    >
+                      <img src={image.url} alt={image.title} className="image-thumb" />
+                      <p className="image-caption">{image.title}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </article>
           </section>
         )}

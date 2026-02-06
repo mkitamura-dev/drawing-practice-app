@@ -6,3 +6,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('/drawings', [DrawingController::class, 'index']);
 Route::post('/drawings', [DrawingController::class, 'store']);
 Route::get('/drawings/{drawing}/image', [DrawingController::class, 'image']);
+Route::delete('/drawings/{drawing}', [DrawingController::class, 'destroy']);
